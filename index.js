@@ -1,8 +1,6 @@
 var fs = require('fs');
 var express = require('express');
 var app = express();
-var pkgcloud = require('pkgcloud'),
-    _ = require('lodash');
 var bodyParser = require("body-parser");
 var request = require('request');
 
@@ -15,6 +13,7 @@ var cfg = {
 
 
 var httpServ = ( cfg.ssl ) ? require('https') : require('http');
+var url_compute = 'http://10.105.231.101:8774/v2.1/';
 
 if ( cfg.ssl ) {
 
@@ -34,24 +33,36 @@ app.use(bodyParser.json());
 
 app.get(/^(.+)$/, function(req, res){ 
 	switch(req.params[0]) {
-		case '/aceleracion':
-			res.send();
-			break;
+		case '/servers':
+			var headers = {
+				'Content-Type':'application/json',
+				'X-Auth-Token': req.body.tokenid
+				}	
+                        var options = {
+                                url: url_compute + req.body.tenantid + '/servers' ,
+                                headers: headers
+                                }
+                        request(options, function (error, response, body) {
+			console.log(body);
+                            if (!error && response.statusCode == 200) {
+                                res.status(200).send(body);
+                            } else {
+                                res.status(404);
+                                }
+                                res.end();
+                        });
+                        break;
 	default: 
 	}
  });
 
 app.post(/^(.+)$/, function(req, res){ 
 	switch(req.params[0]) {
-		case '/getToken':
-			//var usuario = new Object();
-			//usuario.username = req.body.username;		
-			//usuario.password = req.body.password;	
-			var requestData = {"auth":{"passwordCredentials":{"username": "admin","password": "nomoresecrete"}}};
-
+		case '/tokens':
+			var requestData = {"auth":{"passwordCredentials":{"username": req.body.username,"password": req.body.password}}};
 			var headers = {
-				'Content-Type':'application/json'
-				}	
+                                'Content-Type':'application/json'
+                        	}
 			var options = {
  				url: 'http://10.105.231.101:5000/v2.0/tokens',
 				method: 'POST',
@@ -60,12 +71,24 @@ app.post(/^(.+)$/, function(req, res){
 				}
 			request(options, function (error, response, body) {
 			    if (!error && response.statusCode == 200) {
-				res.send(response);
+				var tokenid = (body.access.token.id);
+				res.status(200).send(tokenid);
+			    } else {
+				res.status(404);
+				} 
 				res.end();
-			    } 
 			});
+			break;
+		case '/instancias':
+			
 			break;
 	default: 
 	}
  });
 
+function handleServerResponse(err, server) {
+  if (err) {
+    console.dir(err);
+    return;
+  }
+};
