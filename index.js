@@ -3,6 +3,8 @@ var express = require('express');
 var app = express();
 var pkgcloud = require('pkgcloud'),
     _ = require('lodash');
+var bodyParser = require("body-parser");
+var request = require('request');
 
 var cfg = {
         ssl: true,
@@ -25,24 +27,45 @@ if ( cfg.ssl ) {
 
     } else {
 
-        app = httpServ.createServer( processRequest ).listen( cfg.port );
+        var server = httpServ.createServer( app ).listen( cfg.port );
     }
 
+app.use(bodyParser.json());
 
-var cliente = pkgcloud.compute.createClient({
-    provider: 'openstack', 
-    username: 'admin',
-    password: 'nomoresecrete',
-    region: 'RegionOne',
-    authUrl: 'http://10.105.231.101:5000/'
-  });
+app.get(/^(.+)$/, function(req, res){ 
+	switch(req.params[0]) {
+		case '/aceleracion':
+			res.send();
+			break;
+	default: 
+	}
+ });
 
+app.post(/^(.+)$/, function(req, res){ 
+	switch(req.params[0]) {
+		case '/getToken':
+			//var usuario = new Object();
+			//usuario.username = req.body.username;		
+			//usuario.password = req.body.password;	
+			var requestData = {"auth":{"passwordCredentials":{"username": "admin","password": "nomoresecrete"}}};
 
-app.get('/', function (req, res) {
-
-    cliente.getImages(function(err, images) {
-	res.send(images);
-   });
-
-});
+			var headers = {
+				'Content-Type':'application/json'
+				}	
+			var options = {
+ 				url: 'http://10.105.231.101:5000/v2.0/tokens',
+				method: 'POST',
+				headers: headers,
+				json: requestData
+				}
+			request(options, function (error, response, body) {
+			    if (!error && response.statusCode == 200) {
+				res.send(response);
+				res.end();
+			    } 
+			});
+			break;
+	default: 
+	}
+ });
 
