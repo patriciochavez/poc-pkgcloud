@@ -44,12 +44,9 @@ pedido.combo = tipo;
 }
 
 function ListarServidores(){
-    //AsistenteREST('https://10.105.231.23:3000/servers', 'GET', '', );
-
 var auth = new Object();
 auth.tokenid = tokenid;
 auth.tenantid = tenantid;
-
     $.ajax({
         url: 'https://10.105.231.23:3000/misservers', 
 	type: 'POST',
@@ -61,6 +58,7 @@ auth.tenantid = tenantid;
     });     
 }
 
+/*
 $.ajax({
         url: "https://10.105.231.23:3000/tokens",
         type: 'POST',
@@ -75,7 +73,27 @@ $.ajax({
 	ListarServidores();
         }
 });
+*/
 
+var wss = new WebSocket('wss://10.105.231.63:8443/');
+
+wss.onopen = function()
+               {
+                wss.send("solicitoToken");
+		console.log("solicito token");                  
+               };
+
+wss.onmessage = function (e) {
+	if (e.data !="usuario logueado" !="usuario registrado"){	        
+		if (e.data != "conectado"){
+		var ids = JSON.parse(e.data);
+		tokenid = ids.token;
+		tenantid = ids.tenant;
+		console.log("token: " + tokenid);
+		ListarServidores();	
+			}
+		}
+};
 
 </script>
 </head>
