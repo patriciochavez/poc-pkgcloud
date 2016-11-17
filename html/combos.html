@@ -26,8 +26,22 @@ function AsistenteREST(url, verbo, header, data){
 
 
 function LanzarCombo(tipo){
-    console.log(tipo);
-    }
+console.log("Lanzando combo: " + tipo);
+var pedido = new Object();
+pedido.tokenid = tokenid;
+pedido.tenantid = tenantid;
+pedido.combo = tipo;
+
+  $.ajax({
+        url: 'https://10.105.231.23:3000/servers', 
+	type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+	data: JSON.stringify(pedido),
+	success: function(result) {
+            console.log(result);
+        }
+    });   
+}
 
 function ListarServidores(){
     //AsistenteREST('https://10.105.231.23:3000/servers', 'GET', '', );
@@ -67,9 +81,9 @@ $.ajax({
 </head>
 <body>
 <div style="width: 600px;">
- <div id="chico" style="float: left; width: 200px; height: 300px; background-color: lightsalmon;" onclick="lanzarCombo(this.id);">chico</div>
- <div id="mediano"style="float: left; width: 200px; height: 300px; background-color: lightgreen;" onclick="lanzarCombo(this.id);">mediano</div>
- <div id="grande" style="float: left; width: 200px; height: 300px; background-color: lightblue;" onclick="lanzarCombo(this.id);">grande</div>
+ <div id="chico" style="float: left; width: 200px; height: 300px; background-color: lightsalmon;" onclick="LanzarCombo('42');">chico</div>
+ <div id="mediano"style="float: left; width: 200px; height: 300px; background-color: lightgreen;" onclick="LanzarCombo('84');">mediano</div>
+ <div id="grande" style="float: left; width: 200px; height: 300px; background-color: lightblue;" onclick="LanzarCombo('1');">grande</div>
  <br style="clear: left;" />
 </div>
 </body>

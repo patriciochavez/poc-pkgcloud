@@ -53,17 +53,14 @@ app.post(/^(.+)$/, function(req, res){
 				headers: headers,
 				json: requestData
 				}
-			request(options, function (error, response, body) {
-			console.log("POST: /tokens");
+			request(options, function (error, response, body) {			
 			    if (!error && response.statusCode == 200) {
 				var autenticado = new Object();
 				autenticado.tokenid = body.access.token.id;
-				autenticado.tenantid = body.access.token.tenant.id;
-				console.log(JSON.stringify(autenticado));
+				autenticado.tenantid = body.access.token.tenant.id;				
 				res.status(200).send(JSON.stringify(autenticado));
 				res.end();
-			    } else {
-				console.log("error: " + error);
+			    } else {				
 				res.status(404);
 				res.end();
 				} 
@@ -78,11 +75,31 @@ app.post(/^(.+)$/, function(req, res){
                                 url: url_compute + req.body.tenantid + '/servers' ,
                                 headers: headers
                                 }
-                        request(options, function (error, response, body) {
-			console.log(body);
+                        request(options, function (error, response, body) {			
                             if (!error && response.statusCode == 200) {
                                 res.status(200).send(body);
                             } else {
+                                res.status(404);
+                                }
+                                res.end();
+                        });
+                        break;
+		case '/servers':
+			var requestData = {"server": {"name": "servidor_micro_portal", "imageRef": "bfa0c32e-f6db-46cd-b682-e0977e017ec5", "flavorRef":  req.body.combo}};
+			var headers = {
+				'Content-Type':'application/json',
+				'X-Auth-Token': req.body.tokenid
+				}	
+                        var options = {
+                                url: url_compute + req.body.tenantid + '/servers' ,
+				method: 'POST',
+                                headers: headers,
+				json: requestData
+                                }
+                        request(options, function (error, response, body) {	
+                            if (!error && response.statusCode == 200) {
+                                res.status(200).send(body);
+                            } else {								
                                 res.status(404);
                                 }
                                 res.end();
