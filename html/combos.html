@@ -8,6 +8,156 @@
 var tokenid, tenantid;
 var url = 'https://10.105.231.23:3000';
 
+//var login = {"username": "admin", "password": "nomoresecrete"};
+
+function AsistenteREST(url, verbo, header, data){
+    $.ajax({
+        url: url,
+        type: verbo,
+        header: header,
+       contentType: 'application/json; charset=utf-8',
+        dataType: 'json',                
+        data: data,
+        success: function(result) {
+            console.log(result);
+        }
+    });    
+}
+
+
+function LanzarCombo(tipo){
+console.log("Lanzando combo: " + tipo);
+var pedido = new Object();
+pedido.tokenid = tokenid;
+pedido.tenantid = tenantid;
+pedido.combo = tipo;
+
+  $.ajax({
+        url: 'https://10.105.231.23:3000/servers', 
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify(pedido),
+        success: function(result) {
+            console.log(result);
+        }
+    });   
+}
+
+function ListarServidores(){
+var auth = new Object();
+auth.tokenid = tokenid;
+auth.tenantid = tenantid;
+    $.ajax({
+        url: 'https://10.105.231.23:3000/misservers', 
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        data: JSON.stringify(auth),
+        success: function(result) {
+            console.log(result);
+        }
+    });     
+}
+
+/*
+$.ajax({
+        url: "https://10.105.231.23:3000/tokens",
+        type: 'POST',
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',        
+        data: JSON.stringify(login),
+        success: function(result) {
+            tokenid = result.tokenid;
+            tenantid = result.tenantid;
+            console.log("token: " + tokenid);
+            console.log("tenant: " + tenantid);
+        ListarServidores();
+        }
+});
+*/
+
+var wss = new WebSocket('wss://10.105.231.63:8443/');
+
+wss.onopen = function()
+               {
+                wss.send("solicitoToken");
+                console.log("solicito token");                  
+               };
+
+wss.onmessage = function (e) {
+        if (e.data !="usuario logueado" !="usuario registrado"){                
+                if (e.data != "conectado"){
+                var ids = JSON.parse(e.data);
+                tokenid = ids.token;
+                tenantid = ids.tenant;
+                console.log("token: " + tokenid);
+                ListarServidores();     
+                        }
+                }
+};
+
+</script>
+<style>
+body{
+                background-image:url('background.png');
+                background-size:cover;
+                background-repeat: no-repeat;
+                }
+#chico{
+                background-image:url('helados-01.png');
+                width:338px;
+                height:780px;
+                background-size:100% 100%;
+}
+#chico:hover {
+   background-image: url('helados-04.png');
+}
+#mediano{
+                background-image:url('helados-02.png');
+                width:338px;
+                height:780px;
+                background-size:100% 100%;
+}
+#mediano:hover {
+   background-image: url('helados-05.png');
+}
+#grande{
+                background-image:url('helados-03.png');
+                width:338px;
+                height:780px;
+                background-size:100% 100%;
+}
+#grande:hover {
+   background-image: url('helados-06.png');
+}
+</style>
+
+</head>
+<body>
+<div style="margin-top: 10%; width:1014px; margin:10% auto auto auto;">
+<div id="chico" style="float: left;" onclick="LanzarCombo('42');"></div>
+<div id="mediano"style="float: left;" onclick="LanzarCombo('84');"></div>
+<div id="grande" style="float: left;" onclick="LanzarCombo('1');"></div>
+<br style="clear: left;" />
+</div>
+</body>
+</html>
+
+
+From: Chavez Patricio Nazareno (ADV) 
+Sent: Friday, November 18, 2016 11:44 AM
+To: Salgado Viscovich Paula Nair
+Subject: 
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>MC Instances</title>
+</head>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript">
+var tokenid, tenantid;
+var url = 'https://10.105.231.23:3000';
+
 var login = {"username": "admin", "password": "nomoresecrete"};
 
 function AsistenteREST(url, verbo, header, data){
@@ -34,10 +184,10 @@ pedido.combo = tipo;
 
   $.ajax({
         url: 'https://10.105.231.23:3000/servers', 
-	type: 'POST',
+        type: 'POST',
         contentType: 'application/json; charset=utf-8',
-	data: JSON.stringify(pedido),
-	success: function(result) {
+        data: JSON.stringify(pedido),
+        success: function(result) {
             console.log(result);
         }
     });   
@@ -49,10 +199,10 @@ auth.tokenid = tokenid;
 auth.tenantid = tenantid;
     $.ajax({
         url: 'https://10.105.231.23:3000/misservers', 
-	type: 'POST',
+        type: 'POST',
         contentType: 'application/json; charset=utf-8',
-	data: JSON.stringify(auth),
-	success: function(result) {
+        data: JSON.stringify(auth),
+        success: function(result) {
             console.log(result);
         }
     });     
@@ -70,7 +220,7 @@ $.ajax({
             tenantid = result.tenantid;
             console.log("token: " + tokenid);
             console.log("tenant: " + tenantid);
-	ListarServidores();
+        ListarServidores();
         }
 });
 */
@@ -80,29 +230,35 @@ var wss = new WebSocket('wss://10.105.231.63:8443/');
 wss.onopen = function()
                {
                 wss.send("solicitoToken");
-		console.log("solicito token");                  
+                console.log("solicito token");                  
                };
 
 wss.onmessage = function (e) {
-	if (e.data !="usuario logueado" !="usuario registrado"){	        
-		if (e.data != "conectado"){
-		var ids = JSON.parse(e.data);
-		tokenid = ids.token;
-		tenantid = ids.tenant;
-		console.log("token: " + tokenid);
-		ListarServidores();	
-			}
-		}
+        if (e.data !="usuario logueado" !="usuario registrado"){                
+                if (e.data != "conectado"){
+                var ids = JSON.parse(e.data);
+                tokenid = ids.token;
+                tenantid = ids.tenant;
+                console.log("token: " + tokenid);
+                ListarServidores();     
+                        }
+                }
 };
 
 </script>
 </head>
 <body>
 <div style="width: 600px;">
- <div id="chico" style="float: left; width: 200px; height: 300px; background-color: lightsalmon;" onclick="LanzarCombo('42');">chico</div>
- <div id="mediano"style="float: left; width: 200px; height: 300px; background-color: lightgreen;" onclick="LanzarCombo('84');">mediano</div>
- <div id="grande" style="float: left; width: 200px; height: 300px; background-color: lightblue;" onclick="LanzarCombo('1');">grande</div>
- <br style="clear: left;" />
+<div id="chico" style="float: left; width: 200px; height: 300px; background-color: lightsalmon;" onclick="LanzarCombo('42');">chico</div>
+<div id="mediano"style="float: left; width: 200px; height: 300px; background-color: lightgreen;" onclick="LanzarCombo('84');">mediano</div>
+<div id="grande" style="float: left; width: 200px; height: 300px; background-color: lightblue;" onclick="LanzarCombo('1');">grande</div>
+<br style="clear: left;" />
 </div>
 </body>
 </html>
+
+
+________________________________________
+No virus found in this message.
+Checked by AVG - www.avg.com
+Version: 2016.0.7859 / Virus Database: 4664/13407 - Release Date: 11/14/16
